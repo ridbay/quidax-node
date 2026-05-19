@@ -69,6 +69,9 @@ export class WithdrawalsModule {
    * @param data.amount - The amount to withdraw.
    * @param data.fund_uid - The ID of the destination address/fund.
    * @param data.transaction_note - Optional note for the transaction.
+   * @param data.reference - The withdrawal reference string.
+   * @param data.narration - Optional narration for the transaction.
+   * @param data.network - Required only for some blockchain withdrawals.
    * @returns A promise resolving to the created Withdrawal object.
    */
   async create(
@@ -78,6 +81,9 @@ export class WithdrawalsModule {
       amount: string;
       fund_uid: string;
       transaction_note?: string;
+      reference?: string;
+      narration?: string;
+      network?: string;
     },
   ): Promise<QuidaxResponse<Withdrawal>> {
     return (this.client as any).post(`/users/${userId}/withdraws`, data);
