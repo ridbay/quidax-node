@@ -153,7 +153,7 @@ var WalletsModule = class {
 	}
 	/**
 	* Fetches all wallets for a given user.
-	* 
+	*
 	* @param userId - The unique ID of the user. 'me' can be used for the authenticated user.
 	* @returns A promise resolving to an array of Wallet objects.
 	*/
@@ -162,7 +162,7 @@ var WalletsModule = class {
 	}
 	/**
 	* Fetches a specific cryptocurrency wallet for a user.
-	* 
+	*
 	* @param userId - The unique ID of the user.
 	* @param currency - The cryptocurrency ticker (e.g., 'btc', 'usdt').
 	* @returns A promise resolving to a single Wallet object.
@@ -172,7 +172,7 @@ var WalletsModule = class {
 	}
 	/**
 	* Fetches the default Payment Address for a specific user's wallet.
-	* 
+	*
 	* @param userId - The unique ID of the user.
 	* @param currency - The cryptocurrency ticker.
 	* @returns A promise resolving to the primary PaymentAddress object.
@@ -182,7 +182,7 @@ var WalletsModule = class {
 	}
 	/**
 	* Fetches all generated Payment Addresses for a specific user's wallet.
-	* 
+	*
 	* @param userId - The unique ID of the user.
 	* @param currency - The cryptocurrency ticker.
 	* @returns A promise resolving to an array of PaymentAddress objects.
@@ -192,7 +192,7 @@ var WalletsModule = class {
 	}
 	/**
 	* Fetches a specific Payment Address by its ID.
-	* 
+	*
 	* @param userId - The unique ID of the user.
 	* @param currency - The cryptocurrency ticker.
 	* @param addressId - The ID of the specific payment address.
@@ -203,13 +203,13 @@ var WalletsModule = class {
 	}
 	/**
 	* Generates a new Payment Address for a cryptocurrency wallet.
-	* 
+	*
 	* @param userId - The unique ID of the user.
 	* @param currency - The cryptocurrency ticker (e.g., 'btc', 'eth').
 	* @returns A promise resolving to the newly generated PaymentAddress object.
 	*/
-	async createPaymentAddress(userId, currency) {
-		return this.client.post(`/users/${userId}/wallets/${currency}/addresses`);
+	async createPaymentAddress(userId, currency, network) {
+		return this.client.post(`/users/${userId}/wallets/${currency}/addresses?network=${network}`);
 	}
 };
 //#endregion

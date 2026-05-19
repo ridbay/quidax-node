@@ -196,7 +196,7 @@ declare class WalletsModule {
    * @param currency - The cryptocurrency ticker (e.g., 'btc', 'eth').
    * @returns A promise resolving to the newly generated PaymentAddress object.
    */
-  createPaymentAddress(userId: string, currency: Currency): Promise<QuidaxResponse<PaymentAddress>>;
+  createPaymentAddress(userId: string, currency: Currency, network: string): Promise<QuidaxResponse<PaymentAddress>>;
 }
 //#endregion
 //#region src/modules/withdrawals.d.ts
