@@ -229,6 +229,9 @@ var WithdrawalsModule = class {
 	* @param data.amount - The amount to withdraw.
 	* @param data.fund_uid - The ID of the destination address/fund.
 	* @param data.transaction_note - Optional note for the transaction.
+	* @param data.reference - The withdrawal reference string.
+	* @param data.narration - Optional narration for the transaction.
+	* @param data.network - Required only for some blockchain withdrawals.
 	* @returns A promise resolving to the created Withdrawal object.
 	*/
 	async create(userId, data) {
@@ -240,13 +243,17 @@ var WithdrawalsModule = class {
 	* @param userId - The unique ID of the user.
 	* @param amount - The amount to withdraw.
 	* @param merchantId - The ID of the merchant.
+	* @param reference - The withdrawal reference string.
 	* @returns A promise resolving to the created Withdrawal object.
 	*/
-	async ngn_to_merchant(userId, amount, merchantId) {
+	async ngn_to_merchant(userId, amount, merchantId, reference) {
 		const payload = {
 			currency: "ngn",
 			amount,
-			fund_uid: merchantId
+			fund_uid: merchantId,
+			reference,
+			narration: `NGN ${amount} withdrawal from user`,
+			transaction_note: `NGN ${amount} withdrawal to merchant`
 		};
 		return this.client.post(`/users/${userId}/withdraws`, payload);
 	}
