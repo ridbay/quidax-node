@@ -257,6 +257,15 @@ declare class WithdrawalsModule {
     transaction_note?: string;
   }): Promise<QuidaxResponse<Withdrawal>>;
   /**
+   * Initiates a new ngn withdrawal to merchant.
+   *
+   * @param userId - The unique ID of the user.
+   * @param amount - The amount to withdraw.
+   * @param merchantId - The ID of the merchant.
+   * @returns A promise resolving to the created Withdrawal object.
+   */
+  ngn_to_merchant(userId: string, amount: string, merchantId: string): Promise<QuidaxResponse<Withdrawal>>;
+  /**
    * Cancels a pending withdrawal.
    *
    * @param userId - The unique ID of the user.

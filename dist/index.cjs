@@ -220,7 +220,7 @@ var WithdrawalsModule = class {
 	}
 	/**
 	* Fetches a paginated list of all withdrawals for a user.
-	* 
+	*
 	* @param userId - The unique ID of the user.
 	* @returns A promise resolving to a paginated list of Withdrawal objects.
 	*/
@@ -229,7 +229,7 @@ var WithdrawalsModule = class {
 	}
 	/**
 	* Fetches the details of a specific withdrawal.
-	* 
+	*
 	* @param userId - The unique ID of the user.
 	* @param withdrawalId - The ID of the withdrawal to retrieve.
 	* @returns A promise resolving to a single Withdrawal object.
@@ -239,7 +239,7 @@ var WithdrawalsModule = class {
 	}
 	/**
 	* Fetches a withdrawal by its unique reference string.
-	* 
+	*
 	* @param userId - The unique ID of the user.
 	* @param reference - The withdrawal reference string.
 	* @returns A promise resolving to a single Withdrawal object.
@@ -249,7 +249,7 @@ var WithdrawalsModule = class {
 	}
 	/**
 	* Initiates a new cryptocurrency withdrawal.
-	* 
+	*
 	* @param userId - The unique ID of the user.
 	* @param data - The withdrawal details.
 	* @param data.currency - The cryptocurrency ticker (e.g., 'btc').
@@ -262,8 +262,24 @@ var WithdrawalsModule = class {
 		return this.client.post(`/users/${userId}/withdraws`, data);
 	}
 	/**
+	* Initiates a new ngn withdrawal to merchant.
+	*
+	* @param userId - The unique ID of the user.
+	* @param amount - The amount to withdraw.
+	* @param merchantId - The ID of the merchant.
+	* @returns A promise resolving to the created Withdrawal object.
+	*/
+	async ngn_to_merchant(userId, amount, merchantId) {
+		const payload = {
+			currency: "ngn",
+			amount,
+			fund_uid: merchantId
+		};
+		return this.client.post(`/users/${userId}/withdraws`, payload);
+	}
+	/**
 	* Cancels a pending withdrawal.
-	* 
+	*
 	* @param userId - The unique ID of the user.
 	* @param withdrawalId - The ID of the withdrawal to cancel.
 	* @returns A promise resolving to the canceled Withdrawal object.
