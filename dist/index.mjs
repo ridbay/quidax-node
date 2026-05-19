@@ -414,7 +414,7 @@ var SwapModule = class {
 	}
 	/**
 	* Generates a temporary swap quotation for previewing a swap before creation.
-	* 
+	*
 	* @param userId - The unique ID of the user.
 	* @param data - The swap quotation parameters.
 	* @returns A promise resolving to the temporary swap quotation details.
@@ -424,7 +424,7 @@ var SwapModule = class {
 	}
 	/**
 	* Creates an Instant Swap quotation linked to the user account.
-	* 
+	*
 	* @param userId - The unique ID of the user.
 	* @param data - The swap creation payload.
 	* @returns A promise resolving to a SwapTransaction object in an unconfirmed state.
@@ -434,7 +434,7 @@ var SwapModule = class {
 	}
 	/**
 	* Confirms a previously created Instant Swap quotation.
-	* 
+	*
 	* @param userId - The unique ID of the user.
 	* @param quotationId - The ID of the swap quotation to confirm.
 	* @returns A promise resolving to the confirmed SwapTransaction.
@@ -444,7 +444,7 @@ var SwapModule = class {
 	}
 	/**
 	* Refreshes an expired Instant Swap quotation to get updated market rates.
-	* 
+	*
 	* @param userId - The unique ID of the user.
 	* @param quotationId - The ID of the expired swap quotation.
 	* @returns A promise resolving to the refreshed SwapTransaction.
@@ -454,7 +454,7 @@ var SwapModule = class {
 	}
 	/**
 	* Fetches the details of a specific Swap Transaction.
-	* 
+	*
 	* @param userId - The unique ID of the user.
 	* @param swapTransactionId - The ID of the swap transaction.
 	* @returns A promise resolving to the SwapTransaction details.
@@ -464,7 +464,7 @@ var SwapModule = class {
 	}
 	/**
 	* Retrieves a paginated list of all swap transactions for a user.
-	* 
+	*
 	* @param userId - The unique ID of the user.
 	* @returns A promise resolving to a paginated list of SwapTransactions.
 	*/

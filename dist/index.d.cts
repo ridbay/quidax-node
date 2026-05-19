@@ -486,7 +486,7 @@ declare class SwapModule {
     source_currency: Currency;
     destination_currency: Currency;
     amount: string;
-    type: 'source' | 'destination';
+    type: "source" | "destination";
   }): Promise<QuidaxResponse<any>>;
   /**
    * Creates an Instant Swap quotation linked to the user account.
@@ -496,10 +496,10 @@ declare class SwapModule {
    * @returns A promise resolving to a SwapTransaction object in an unconfirmed state.
    */
   create(userId: string, data: {
-    source_currency: Currency;
-    destination_currency: Currency;
-    source_amount?: string;
-    destination_amount?: string;
+    from_currency: Currency;
+    to_currency: Currency;
+    from_amount?: string;
+    to_amount?: string;
   }): Promise<QuidaxResponse<SwapTransaction>>;
   /**
    * Confirms a previously created Instant Swap quotation.
