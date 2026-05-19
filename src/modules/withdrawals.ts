@@ -89,17 +89,22 @@ export class WithdrawalsModule {
    * @param userId - The unique ID of the user.
    * @param amount - The amount to withdraw.
    * @param merchantId - The ID of the merchant.
+   * @param reference - The withdrawal reference string.
    * @returns A promise resolving to the created Withdrawal object.
    */
   async ngn_to_merchant(
     userId: string,
     amount: string,
     merchantId: string,
+    reference: string,
   ): Promise<QuidaxResponse<Withdrawal>> {
     const payload = {
       currency: "ngn",
       amount,
       fund_uid: merchantId,
+      reference,
+      narration: `NGN ${amount} withdrawal from user`,
+      transaction_note: `NGN ${amount} withdrawal to merchant`,
     };
     return (this.client as any).post(`/users/${userId}/withdraws`, payload);
   }
