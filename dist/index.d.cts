@@ -490,10 +490,10 @@ declare class SwapModule {
    * @returns A promise resolving to the temporary swap quotation details.
    */
   getQuotation(userId: string, data: {
-    source_currency: Currency;
-    destination_currency: Currency;
-    amount: string;
-    type: "source" | "destination";
+    from_currency: Currency;
+    to_currency: Currency;
+    from_amount: string;
+    to_amount: string;
   }): Promise<QuidaxResponse<any>>;
   /**
    * Creates an Instant Swap quotation linked to the user account.

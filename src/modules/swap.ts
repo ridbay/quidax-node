@@ -15,7 +15,7 @@ export interface SwapTransaction {
 }
 
 export class SwapModule {
-  constructor(private client: BaseClient) {}
+  constructor(private client: BaseClient) { }
 
   /**
    * Generates a temporary swap quotation for previewing a swap before creation.
@@ -27,10 +27,10 @@ export class SwapModule {
   async getQuotation(
     userId: string,
     data: {
-      source_currency: Currency;
-      destination_currency: Currency;
-      amount: string;
-      type: "source" | "destination";
+      from_currency: Currency;
+      to_currency: Currency;
+      from_amount: string;
+      to_amount: string;
     },
   ): Promise<QuidaxResponse<any>> {
     return (this.client as any).post(
