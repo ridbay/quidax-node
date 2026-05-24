@@ -30,7 +30,7 @@ export class SwapModule {
       from_currency: Currency;
       to_currency: Currency;
       from_amount: string;
-      to_amount: string;
+      to_amount?: string;
     },
   ): Promise<QuidaxResponse<any>> {
     return (this.client as any).post(
