@@ -30,7 +30,7 @@ export interface SwapRefreshParams {
 }
 
 export class SwapModule {
-  constructor(private client: BaseClient) { }
+  constructor(private client: BaseClient) {}
 
   /**
    * Generates a temporary swap quotation for previewing a swap before creation.
@@ -39,7 +39,7 @@ export class SwapModule {
    * @param data - The swap quotation parameters.
    * @returns A promise resolving to the temporary swap quotation details.
    */
-  async previewQuotation(
+  async getTemporarySwapQuotation(
     userId: string,
     data: {
       from_currency: Currency;
@@ -132,7 +132,9 @@ export class SwapModule {
    * @param userId - The unique ID of the user.
    * @returns A promise resolving to a paginated list of SwapTransactions.
    */
-  async listSwapTransactions(userId: string): Promise<PaginatedResponse<SwapTransaction>> {
+  async listSwapTransactions(
+    userId: string,
+  ): Promise<PaginatedResponse<SwapTransaction>> {
     return (this.client as any).get(`/users/${userId}/swap_transactions`);
   }
 }
