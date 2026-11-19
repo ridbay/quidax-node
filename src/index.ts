@@ -33,7 +33,7 @@ export * from './modules/ramp';
  * ```typescript
  * import Quidax from 'quidax-node';
  * 
- * const quidax = new Quidax({ secretKey: 's_your_secret_key' });
+ * const quidax = new Quidax({ apiKey: 'your_api_key' });
  * const me = await quidax.users.getParentAccount();
  * ```
  */

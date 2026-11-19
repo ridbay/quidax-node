@@ -15,7 +15,21 @@ export interface PaginatedResponse<T> extends QuidaxResponse<T[]> {
   meta: PaginationMeta;
 }
 
-export type Currency = 'btc' | 'ltc' | 'eth' | 'usdt' | 'xrp' | 'dash' | 'trx' | 'doge' | 'usdc' | 'ngn' | 'usd' | string;
+export type Currency = 'btc' | 'ltc' | 'eth' | 'usdt' | 'xrp' | 'dash' | 'trx' | 'doge' | 'usdc' | 'sol' | 'bnb' | 'ton' | 'xlm' | 'cngn' | 'ngn' | 'usd' | string;
+
+/**
+ * Blockchain network identifier (e.g. 'bitcoin', 'bep20', 'erc20', 'trc20').
+ * Use `wallets.getOne` / `wallets.getAll` to see the networks each asset supports.
+ */
+export type Network = string;
+
+export interface WalletNetwork {
+  id: Network;
+  name: string;
+  deposits_enabled: boolean;
+  withdraws_enabled: boolean;
+  [key: string]: unknown;
+}
 
 export interface User {
   id: string;
@@ -35,6 +49,9 @@ export interface Wallet {
   balance: string;
   locked: string;
   staked: string;
+  blockchain_enabled?: boolean;
+  default_network?: Network | null;
+  networks?: WalletNetwork[];
   user: {
     id: string;
     sn: string;
@@ -48,6 +65,7 @@ export interface PaymentAddress {
   reference: string;
   currency: Currency;
   address: string;
+  network?: Network | null;
   destination_tag: string | null;
   total_payments: number;
   created_at: string;

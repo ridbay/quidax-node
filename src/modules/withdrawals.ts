@@ -1,5 +1,5 @@
 import { BaseClient } from "../client";
-import { QuidaxResponse, PaginatedResponse, Currency } from "../types";
+import { QuidaxResponse, PaginatedResponse, Currency, Network } from "../types";
 
 export interface Withdrawal {
   id: string;
@@ -67,11 +67,14 @@ export class WithdrawalsModule {
    * @param data - The withdrawal details.
    * @param data.currency - The cryptocurrency ticker (e.g., 'btc').
    * @param data.amount - The amount to withdraw.
-   * @param data.fund_uid - The ID of the destination address/fund.
+   * @param data.fund_uid - The ID of a sub-user or a crypto address.
+   * @param data.fund_uid2 - Destination tag/memo (e.g. for XRP, XLM).
    * @param data.transaction_note - Optional note for the transaction.
-   * @param data.reference - The withdrawal reference string.
+   * @param data.reference - Unique reference for the withdrawal (required in v3.0).
+   *   If this call fails, fetch the withdrawal with `getByReference` before retrying,
+   *   as it may already have been processed.
    * @param data.narration - Optional narration for the transaction.
-   * @param data.network - Required only for some blockchain withdrawals.
+   * @param data.network - Blockchain network; required for on-chain withdrawals.
    * @returns A promise resolving to the created Withdrawal object.
    */
   async create(
@@ -80,10 +83,11 @@ export class WithdrawalsModule {
       currency: Currency;
       amount: string;
       fund_uid: string;
+      fund_uid2?: string;
       transaction_note?: string;
-      reference?: string;
+      reference: string;
       narration?: string;
-      network?: string;
+      network?: Network;
     },
   ): Promise<QuidaxResponse<Withdrawal>> {
     return (this.client as any).post(`/users/${userId}/withdraws`, data);

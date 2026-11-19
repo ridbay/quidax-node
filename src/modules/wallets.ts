@@ -1,5 +1,5 @@
 import { BaseClient } from "../client";
-import { QuidaxResponse, Wallet, PaymentAddress, Currency } from "../types";
+import { QuidaxResponse, Wallet, PaymentAddress, Currency, Network } from "../types";
 
 export class WalletsModule {
   constructor(private client: BaseClient) {}
@@ -80,18 +80,23 @@ export class WalletsModule {
 
   /**
    * Generates a new Payment Address for a cryptocurrency wallet.
+   * In Quidax 3.0 the network is mandatory and the address is generated immediately.
    *
    * @param userId - The unique ID of the user.
-   * @param currency - The cryptocurrency ticker (e.g., 'btc', 'eth').
+   * @param currency - The cryptocurrency ticker (e.g., 'btc', 'usdt').
+   * @param network - The blockchain network (e.g., 'bitcoin', 'bep20', 'trc20').
+   *   Use `getOne`/`getAll` to see the networks a currency supports.
    * @returns A promise resolving to the newly generated PaymentAddress object.
    */
   async createPaymentAddress(
     userId: string,
     currency: Currency,
-    network: string,
+    network: Network,
   ): Promise<QuidaxResponse<PaymentAddress>> {
     return (this.client as any).post(
-      `/users/${userId}/wallets/${currency}/addresses?network=${network}`,
+      `/users/${userId}/wallets/${currency}/addresses`,
+      undefined,
+      { params: { network } },
     );
   }
 }

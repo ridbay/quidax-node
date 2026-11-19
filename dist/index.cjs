@@ -48,13 +48,14 @@ var BaseClient = class {
 	exchangeBaseURL;
 	rampBaseURL;
 	constructor(config) {
-		if (!config.secretKey) throw new Error("Quidax secretKey is required.");
+		const apiKey = config.apiKey || config.secretKey;
+		if (!apiKey) throw new Error("Quidax apiKey is required.");
 		this.exchangeBaseURL = config.exchangeBaseURL || "https://openapi.quidax.io/exchange-open-api/api/v1";
 		this.rampBaseURL = config.rampBaseURL || "https://ramp-be.quidax.io/api/v1";
 		this.httpClient = axios.default.create({
 			timeout: config.timeout || 3e4,
 			headers: {
-				"Authorization": `Bearer ${config.secretKey}`,
+				"Authorization": `Bearer ${apiKey}`,
 				"Content-Type": "application/json"
 			}
 		});
@@ -203,13 +204,16 @@ var WalletsModule = class {
 	}
 	/**
 	* Generates a new Payment Address for a cryptocurrency wallet.
+	* In Quidax 3.0 the network is mandatory and the address is generated immediately.
 	*
 	* @param userId - The unique ID of the user.
-	* @param currency - The cryptocurrency ticker (e.g., 'btc', 'eth').
+	* @param currency - The cryptocurrency ticker (e.g., 'btc', 'usdt').
+	* @param network - The blockchain network (e.g., 'bitcoin', 'bep20', 'trc20').
+	*   Use `getOne`/`getAll` to see the networks a currency supports.
 	* @returns A promise resolving to the newly generated PaymentAddress object.
 	*/
 	async createPaymentAddress(userId, currency, network) {
-		return this.client.post(`/users/${userId}/wallets/${currency}/addresses?network=${network}`);
+		return this.client.post(`/users/${userId}/wallets/${currency}/addresses`, void 0, { params: { network } });
 	}
 };
 //#endregion
@@ -254,11 +258,14 @@ var WithdrawalsModule = class {
 	* @param data - The withdrawal details.
 	* @param data.currency - The cryptocurrency ticker (e.g., 'btc').
 	* @param data.amount - The amount to withdraw.
-	* @param data.fund_uid - The ID of the destination address/fund.
+	* @param data.fund_uid - The ID of a sub-user or a crypto address.
+	* @param data.fund_uid2 - Destination tag/memo (e.g. for XRP, XLM).
 	* @param data.transaction_note - Optional note for the transaction.
-	* @param data.reference - The withdrawal reference string.
+	* @param data.reference - Unique reference for the withdrawal (required in v3.0).
+	*   If this call fails, fetch the withdrawal with `getByReference` before retrying,
+	*   as it may already have been processed.
 	* @param data.narration - Optional narration for the transaction.
-	* @param data.network - Required only for some blockchain withdrawals.
+	* @param data.network - Blockchain network; required for on-chain withdrawals.
 	* @returns A promise resolving to the created Withdrawal object.
 	*/
 	async create(userId, data) {
@@ -477,14 +484,16 @@ var SwapModule = class {
 		return this.client.post(`/users/${userId}/swap_quotation/${quotationId}/confirm`);
 	}
 	/**
-	* Refreshes an expired Instant Swap quotation to get updated market rates.
+	* Refreshes an Instant Swap quotation to get updated market rates.
+	* In Quidax 3.0 a quotation can only be refreshed if it has expired or the value changes.
 	*
 	* @param userId - The unique ID of the user.
-	* @param quotationId - The ID of the expired swap quotation.
+	* @param quotationId - The ID of the swap quotation.
+	* @param data - Optional updated quotation values.
 	* @returns A promise resolving to the refreshed SwapTransaction.
 	*/
-	async refresh(userId, quotationId) {
-		return this.client.post(`/users/${userId}/swap_quotation/${quotationId}/refresh`);
+	async refresh(userId, quotationId, data) {
+		return this.client.post(`/users/${userId}/swap_quotation/${quotationId}/refresh`, data);
 	}
 	/**
 	* Fetches the details of a specific Swap Transaction.
@@ -713,7 +722,7 @@ var RampModule = class {
 * ```typescript
 * import Quidax from 'quidax-node';
 * 
-* const quidax = new Quidax({ secretKey: 's_your_secret_key' });
+* const quidax = new Quidax({ apiKey: 'your_api_key' });
 * const me = await quidax.users.getParentAccount();
 * ```
 */

@@ -3,9 +3,15 @@ import { AxiosInstance, AxiosRequestConfig } from "axios";
 //#region src/client.d.ts
 interface QuidaxClientConfig {
   /**
-   * The Quidax secret API key (starts with 's_')
+   * Your Quidax 3.0 API key, generated under "My Account" > "API Management" in the
+   * Quidax 3.0 web app. IP whitelisting is mandatory for these keys.
    */
-  secretKey: string;
+  apiKey?: string;
+  /**
+   * @deprecated Since Quidax 3.0 you must pass the API key, not the secret key. Use `apiKey` instead.
+   * Still accepted for backwards compatibility and sent the same way as `apiKey`.
+   */
+  secretKey?: string;
   /**
    * Base URL for the primary Exchange APIs (default: https://openapi.quidax.io/exchange-open-api/api/v1)
    */
@@ -54,7 +60,19 @@ interface PaginationMeta {
 interface PaginatedResponse<T> extends QuidaxResponse<T[]> {
   meta: PaginationMeta;
 }
-type Currency = 'btc' | 'ltc' | 'eth' | 'usdt' | 'xrp' | 'dash' | 'trx' | 'doge' | 'usdc' | 'ngn' | 'usd' | string;
+type Currency = 'btc' | 'ltc' | 'eth' | 'usdt' | 'xrp' | 'dash' | 'trx' | 'doge' | 'usdc' | 'sol' | 'bnb' | 'ton' | 'xlm' | 'cngn' | 'ngn' | 'usd' | string;
+/**
+ * Blockchain network identifier (e.g. 'bitcoin', 'bep20', 'erc20', 'trc20').
+ * Use `wallets.getOne` / `wallets.getAll` to see the networks each asset supports.
+ */
+type Network = string;
+interface WalletNetwork {
+  id: Network;
+  name: string;
+  deposits_enabled: boolean;
+  withdraws_enabled: boolean;
+  [key: string]: unknown;
+}
 interface User {
   id: string;
   sn: string;
@@ -72,6 +90,9 @@ interface Wallet {
   balance: string;
   locked: string;
   staked: string;
+  blockchain_enabled?: boolean;
+  default_network?: Network | null;
+  networks?: WalletNetwork[];
   user: {
     id: string;
     sn: string;
@@ -84,6 +105,7 @@ interface PaymentAddress {
   reference: string;
   currency: Currency;
   address: string;
+  network?: Network | null;
   destination_tag: string | null;
   total_payments: number;
   created_at: string;
@@ -191,12 +213,15 @@ declare class WalletsModule {
   getPaymentAddressById(userId: string, currency: Currency, addressId: string): Promise<QuidaxResponse<PaymentAddress>>;
   /**
    * Generates a new Payment Address for a cryptocurrency wallet.
+   * In Quidax 3.0 the network is mandatory and the address is generated immediately.
    *
    * @param userId - The unique ID of the user.
-   * @param currency - The cryptocurrency ticker (e.g., 'btc', 'eth').
+   * @param currency - The cryptocurrency ticker (e.g., 'btc', 'usdt').
+   * @param network - The blockchain network (e.g., 'bitcoin', 'bep20', 'trc20').
+   *   Use `getOne`/`getAll` to see the networks a currency supports.
    * @returns A promise resolving to the newly generated PaymentAddress object.
    */
-  createPaymentAddress(userId: string, currency: Currency, network: string): Promise<QuidaxResponse<PaymentAddress>>;
+  createPaymentAddress(userId: string, currency: Currency, network: Network): Promise<QuidaxResponse<PaymentAddress>>;
 }
 //#endregion
 //#region src/modules/withdrawals.d.ts
@@ -246,21 +271,25 @@ declare class WithdrawalsModule {
    * @param data - The withdrawal details.
    * @param data.currency - The cryptocurrency ticker (e.g., 'btc').
    * @param data.amount - The amount to withdraw.
-   * @param data.fund_uid - The ID of the destination address/fund.
+   * @param data.fund_uid - The ID of a sub-user or a crypto address.
+   * @param data.fund_uid2 - Destination tag/memo (e.g. for XRP, XLM).
    * @param data.transaction_note - Optional note for the transaction.
-   * @param data.reference - The withdrawal reference string.
+   * @param data.reference - Unique reference for the withdrawal (required in v3.0).
+   *   If this call fails, fetch the withdrawal with `getByReference` before retrying,
+   *   as it may already have been processed.
    * @param data.narration - Optional narration for the transaction.
-   * @param data.network - Required only for some blockchain withdrawals.
+   * @param data.network - Blockchain network; required for on-chain withdrawals.
    * @returns A promise resolving to the created Withdrawal object.
    */
   create(userId: string, data: {
     currency: Currency;
     amount: string;
     fund_uid: string;
+    fund_uid2?: string;
     transaction_note?: string;
-    reference?: string;
+    reference: string;
     narration?: string;
-    network?: string;
+    network?: Network;
   }): Promise<QuidaxResponse<Withdrawal>>;
   /**
    * Initiates a new ngn withdrawal to merchant.
@@ -475,9 +504,22 @@ interface SwapTransaction {
   destination_amount: string;
   exchange_rate: string;
   fee: string;
-  status: string;
+  status: SwapStatus;
   created_at: string;
   updated_at: string;
+}
+/**
+ * Swap transaction status. `failed` was added in Quidax 3.0
+ * (webhook event: `swap_transaction.failed`).
+ */
+type SwapStatus = "initiated" | "completed" | "failed" | (string & {});
+interface SwapRefreshParams {
+  from_currency?: Currency;
+  to_currency?: Currency;
+  /** Provide either `from_amount` or `to_amount`, not both. */
+  from_amount?: string;
+  /** Provide either `from_amount` or `to_amount`, not both. */
+  to_amount?: string;
 }
 declare class SwapModule {
   private client;
@@ -493,7 +535,7 @@ declare class SwapModule {
     from_currency: Currency;
     to_currency: Currency;
     from_amount: string;
-    to_amount: string;
+    to_amount?: string;
   }): Promise<QuidaxResponse<any>>;
   /**
    * Creates an Instant Swap quotation linked to the user account.
@@ -517,13 +559,15 @@ declare class SwapModule {
    */
   confirm(userId: string, quotationId: string): Promise<QuidaxResponse<SwapTransaction>>;
   /**
-   * Refreshes an expired Instant Swap quotation to get updated market rates.
+   * Refreshes an Instant Swap quotation to get updated market rates.
+   * In Quidax 3.0 a quotation can only be refreshed if it has expired or the value changes.
    *
    * @param userId - The unique ID of the user.
-   * @param quotationId - The ID of the expired swap quotation.
+   * @param quotationId - The ID of the swap quotation.
+   * @param data - Optional updated quotation values.
    * @returns A promise resolving to the refreshed SwapTransaction.
    */
-  refresh(userId: string, quotationId: string): Promise<QuidaxResponse<SwapTransaction>>;
+  refresh(userId: string, quotationId: string, data?: SwapRefreshParams): Promise<QuidaxResponse<SwapTransaction>>;
   /**
    * Fetches the details of a specific Swap Transaction.
    *
@@ -736,7 +780,7 @@ declare class QuidaxError extends Error {
  * ```typescript
  * import Quidax from 'quidax-node';
  *
- * const quidax = new Quidax({ secretKey: 's_your_secret_key' });
+ * const quidax = new Quidax({ apiKey: 'your_api_key' });
  * const me = await quidax.users.getParentAccount();
  * ```
  */
@@ -785,4 +829,4 @@ declare class Quidax {
   constructor(config: QuidaxClientConfig);
 }
 //#endregion
-export { BaseClient, Currency, Deposit, DepositsModule, FeesModule, Market, MarketsModule, Order, OrderBook, OrdersModule, PaginatedResponse, PaginationMeta, PaymentAddress, Quidax, Quidax as default, QuidaxClientConfig, QuidaxError, QuidaxResponse, RampModule, SwapModule, SwapTransaction, Ticker, Trade, TradesModule, User, UsersModule, Wallet, WalletsModule, Withdrawal, WithdrawalsModule };
+export { BaseClient, Currency, Deposit, DepositsModule, FeesModule, Market, MarketsModule, Network, Order, OrderBook, OrdersModule, PaginatedResponse, PaginationMeta, PaymentAddress, Quidax, Quidax as default, QuidaxClientConfig, QuidaxError, QuidaxResponse, RampModule, SwapModule, SwapRefreshParams, SwapStatus, SwapTransaction, Ticker, Trade, TradesModule, User, UsersModule, Wallet, WalletNetwork, WalletsModule, Withdrawal, WithdrawalsModule };

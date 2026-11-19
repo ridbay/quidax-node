@@ -9,9 +9,24 @@ export interface SwapTransaction {
   destination_amount: string;
   exchange_rate: string;
   fee: string;
-  status: string;
+  status: SwapStatus;
   created_at: string;
   updated_at: string;
+}
+
+/**
+ * Swap transaction status. `failed` was added in Quidax 3.0
+ * (webhook event: `swap_transaction.failed`).
+ */
+export type SwapStatus = "initiated" | "completed" | "failed" | (string & {});
+
+export interface SwapRefreshParams {
+  from_currency?: Currency;
+  to_currency?: Currency;
+  /** Provide either `from_amount` or `to_amount`, not both. */
+  from_amount?: string;
+  /** Provide either `from_amount` or `to_amount`, not both. */
+  to_amount?: string;
 }
 
 export class SwapModule {
@@ -76,18 +91,22 @@ export class SwapModule {
   }
 
   /**
-   * Refreshes an expired Instant Swap quotation to get updated market rates.
+   * Refreshes an Instant Swap quotation to get updated market rates.
+   * In Quidax 3.0 a quotation can only be refreshed if it has expired or the value changes.
    *
    * @param userId - The unique ID of the user.
-   * @param quotationId - The ID of the expired swap quotation.
+   * @param quotationId - The ID of the swap quotation.
+   * @param data - Optional updated quotation values.
    * @returns A promise resolving to the refreshed SwapTransaction.
    */
   async refresh(
     userId: string,
     quotationId: string,
+    data?: SwapRefreshParams,
   ): Promise<QuidaxResponse<SwapTransaction>> {
     return (this.client as any).post(
       `/users/${userId}/swap_quotation/${quotationId}/refresh`,
+      data,
     );
   }
 

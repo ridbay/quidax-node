@@ -3,9 +3,15 @@ import { QuidaxError } from './errors';
 
 export interface QuidaxClientConfig {
   /**
-   * The Quidax secret API key (starts with 's_')
+   * Your Quidax 3.0 API key, generated under "My Account" > "API Management" in the
+   * Quidax 3.0 web app. IP whitelisting is mandatory for these keys.
    */
-  secretKey: string;
+  apiKey?: string;
+  /**
+   * @deprecated Since Quidax 3.0 you must pass the API key, not the secret key. Use `apiKey` instead.
+   * Still accepted for backwards compatibility and sent the same way as `apiKey`.
+   */
+  secretKey?: string;
   /**
    * Base URL for the primary Exchange APIs (default: https://openapi.quidax.io/exchange-open-api/api/v1)
    */
@@ -26,8 +32,9 @@ export class BaseClient {
   protected rampBaseURL: string;
 
   constructor(config: QuidaxClientConfig) {
-    if (!config.secretKey) {
-      throw new Error('Quidax secretKey is required.');
+    const apiKey = config.apiKey || config.secretKey;
+    if (!apiKey) {
+      throw new Error('Quidax apiKey is required.');
     }
 
     this.exchangeBaseURL = config.exchangeBaseURL || 'https://openapi.quidax.io/exchange-open-api/api/v1';
@@ -36,7 +43,7 @@ export class BaseClient {
     this.httpClient = axios.create({
       timeout: config.timeout || 30000,
       headers: {
-        'Authorization': `Bearer ${config.secretKey}`,
+        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
     });

@@ -10,22 +10,24 @@ npm install quidax-node
 
 ## Initialization
 
-Initialize the Quidax client with your Secret Key:
+Initialize the Quidax client with your **API key**:
 
 ```typescript
 import { Quidax } from 'quidax-node';
 
 const quidax = new Quidax({
-  secretKey: 's_your_quidax_secret_key' // Keep this secure!
+  apiKey: 'your_quidax_api_key' // Keep this secure!
 });
 ```
+
+> **Quidax 3.0:** Generate new API keys in the Quidax 3.0 web app under **My Account → API Management**. IP whitelisting is mandatory, so add your server's IP when you create the key. Pass the **API key**, not the secret key. The `secretKey` option still works but is deprecated.
 
 ### Advanced Configuration
 You can optionally pass custom Base URLs or adjust the timeout limit (default is 30,000ms).
 
 ```typescript
 const quidax = new Quidax({
-  secretKey: 's_your_quidax_secret_key',
+  apiKey: 'your_quidax_api_key',
   exchangeBaseURL: 'https://openapi.quidax.io/exchange-open-api/api/v1',
   rampBaseURL: 'https://ramp-be.quidax.io/api/v1',
   timeout: 10000 
@@ -53,11 +55,12 @@ const subAccount = await quidax.users.create({
 ### 2. Wallets & Addresses
 Manage cryptocurrency wallets and generate payment addresses.
 ```typescript
-// Fetch all wallets for a specific user
+// Fetch all wallets for a specific user (each wallet lists its supported `networks`)
 const wallets = await quidax.wallets.getAll('user_id');
 
-// Generate a payment address for a specific currency
-const address = await quidax.wallets.createPaymentAddress('user_id', 'btc');
+// Generate a payment address. The network is required in v3.0 and the address is returned immediately.
+const btcAddress = await quidax.wallets.createPaymentAddress('user_id', 'btc', 'bitcoin');
+const usdtAddress = await quidax.wallets.createPaymentAddress('user_id', 'usdt', 'trc20');
 ```
 
 ### 3. Markets & Tickers
@@ -76,27 +79,50 @@ Track deposits and process withdrawals.
 // Fetch all deposits for a user
 const deposits = await quidax.deposits.getAll('user_id');
 
-// Process a crypto withdrawal
-const withdrawal = await quidax.withdrawals.create('user_id', {
-    currency: 'btc',
-    amount: '0.5',
-    fund_uid: 'fund_id_here'
-});
+// Process a crypto withdrawal. `reference` is required in v3.0.
+const reference = 'wd_' + Date.now();
+try {
+  const withdrawal = await quidax.withdrawals.create('user_id', {
+      currency: 'usdt',
+      amount: '50',
+      fund_uid: 'destination_address_or_sub_user_id',
+      network: 'trc20',
+      reference,
+  });
+} catch (error) {
+  // The withdrawal may already have been processed. Check by reference
+  // before retrying, to avoid a double debit.
+  const existing = await quidax.withdrawals.getByReference('user_id', reference);
+}
 ```
+
+> **Webhooks:** Quidax recommends re-querying the transaction after you receive a webhook and treating the API response as the source of truth. Use `deposits.getOne`, `swap.getOne` and `withdrawals.getByReference`.
 
 ### 5. Instant Swaps
 Process crypto-to-crypto instant swaps.
 ```typescript
-// Generate a swap quotation
-const quotation = await quidax.swap.getQuotation('user_id', {
-    source_currency: 'btc',
-    destination_currency: 'usdt',
-    amount: '1.5',
-    type: 'source'
+// Preview a swap (temporary quotation)
+const preview = await quidax.swap.getQuotation('user_id', {
+    from_currency: 'btc',
+    to_currency: 'usdt',
+    from_amount: '0.01',
+});
+
+// Create the swap quotation (provide either from_amount or to_amount, not both)
+const quotation = await quidax.swap.create('user_id', {
+    from_currency: 'btc',
+    to_currency: 'usdt',
+    from_amount: '0.01',
 });
 
 // Confirm the quotation
-const swap = await quidax.swap.confirm('user_id', 'quotation_id_here');
+const swap = await quidax.swap.confirm('user_id', quotation.data.id);
+
+// Status is 'initiated' | 'completed' | 'failed' ('failed' is new in v3.0)
+if (swap.data.status === 'failed') { /* handle failure */ }
+
+// Refresh a quotation. In v3.0 this only works if it has expired or the value changed.
+await quidax.swap.refresh('user_id', quotation.data.id, { from_amount: '0.02' });
 ```
 
 ### 6. Ramp & Custodial
@@ -122,7 +148,7 @@ import { Quidax, QuidaxError } from 'quidax-node';
 
 async function processPayment() {
   try {
-    const address = await quidax.wallets.createPaymentAddress('invalid_user', 'btc');
+    const address = await quidax.wallets.createPaymentAddress('invalid_user', 'btc', 'bitcoin');
   } catch (error) {
     if (error instanceof QuidaxError) {
       console.error(`HTTP Status: ${error.statusCode}`); // e.g., 400 or 401
@@ -141,9 +167,9 @@ async function processPayment() {
 
 ## TypeScript Support
 
-This project is written entirely in **TypeScript** and compiled using `tsup`. 
+This project is written entirely in **TypeScript** and compiled using `tsdown`. 
 - It natively supports both **CommonJS** (`require`) and **ESModules** (`import`).
 - It ships with comprehensive `.d.ts` type definitions out of the box, meaning you get full autocomplete for standard types like `Wallet`, `PaymentAddress`, `Trade`, `Order`, etc.
 
 ## License
-MIT
+ISC
