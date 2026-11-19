@@ -24,7 +24,7 @@ export class WithdrawalsModule {
    * @param userId - The unique ID of the user.
    * @returns A promise resolving to a paginated list of Withdrawal objects.
    */
-  async getAll(userId: string): Promise<PaginatedResponse<Withdrawal>> {
+  async listWithdrawals(userId: string): Promise<PaginatedResponse<Withdrawal>> {
     return (this.client as any).get(`/users/${userId}/withdraws`);
   }
 
@@ -35,7 +35,7 @@ export class WithdrawalsModule {
    * @param withdrawalId - The ID of the withdrawal to retrieve.
    * @returns A promise resolving to a single Withdrawal object.
    */
-  async getOne(
+  async getWithdrawal(
     userId: string,
     withdrawalId: string,
   ): Promise<QuidaxResponse<Withdrawal>> {
@@ -51,7 +51,7 @@ export class WithdrawalsModule {
    * @param reference - The withdrawal reference string.
    * @returns A promise resolving to a single Withdrawal object.
    */
-  async getByReference(
+  async getWithdrawalByReference(
     userId: string,
     reference: string,
   ): Promise<QuidaxResponse<Withdrawal>> {
@@ -71,13 +71,13 @@ export class WithdrawalsModule {
    * @param data.fund_uid2 - Destination tag/memo (e.g. for XRP, XLM).
    * @param data.transaction_note - Optional note for the transaction.
    * @param data.reference - Unique reference for the withdrawal (required in v3.0).
-   *   If this call fails, fetch the withdrawal with `getByReference` before retrying,
+   *   If this call fails, fetch the withdrawal with `getWithdrawalByReference` before retrying,
    *   as it may already have been processed.
    * @param data.narration - Optional narration for the transaction.
    * @param data.network - Blockchain network; required for on-chain withdrawals.
    * @returns A promise resolving to the created Withdrawal object.
    */
-  async create(
+  async createWithdrawal(
     userId: string,
     data: {
       currency: Currency;
@@ -102,7 +102,7 @@ export class WithdrawalsModule {
    * @param reference - The withdrawal reference string.
    * @returns A promise resolving to the created Withdrawal object.
    */
-  async ngn_to_merchant(
+  async createNgnMerchantWithdrawal(
     userId: string,
     amount: string,
     merchantId: string,
@@ -125,7 +125,7 @@ export class WithdrawalsModule {
    * @param withdrawalId - The ID of the withdrawal to cancel.
    * @returns A promise resolving to the canceled Withdrawal object.
    */
-  async cancel(
+  async cancelWithdrawal(
     userId: string,
     withdrawalId: string,
   ): Promise<QuidaxResponse<Withdrawal>> {

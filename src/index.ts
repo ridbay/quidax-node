@@ -34,7 +34,7 @@ export * from './modules/ramp';
  * import Quidax from 'quidax-node';
  * 
  * const quidax = new Quidax({ apiKey: 'your_api_key' });
- * const me = await quidax.users.getParentAccount();
+ * const me = await quidax.users.getMe();
  * ```
  */
 export class Quidax {

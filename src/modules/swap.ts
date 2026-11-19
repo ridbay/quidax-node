@@ -39,7 +39,7 @@ export class SwapModule {
    * @param data - The swap quotation parameters.
    * @returns A promise resolving to the temporary swap quotation details.
    */
-  async getQuotation(
+  async previewQuotation(
     userId: string,
     data: {
       from_currency: Currency;
@@ -62,7 +62,7 @@ export class SwapModule {
    * @returns A promise resolving to a SwapTransaction object in an unconfirmed state.
    */
 
-  async create(
+  async createQuotation(
     userId: string,
     data: {
       from_currency: Currency;
@@ -81,7 +81,7 @@ export class SwapModule {
    * @param quotationId - The ID of the swap quotation to confirm.
    * @returns A promise resolving to the confirmed SwapTransaction.
    */
-  async confirm(
+  async confirmQuotation(
     userId: string,
     quotationId: string,
   ): Promise<QuidaxResponse<SwapTransaction>> {
@@ -99,7 +99,7 @@ export class SwapModule {
    * @param data - Optional updated quotation values.
    * @returns A promise resolving to the refreshed SwapTransaction.
    */
-  async refresh(
+  async refreshQuotation(
     userId: string,
     quotationId: string,
     data?: SwapRefreshParams,
@@ -117,7 +117,7 @@ export class SwapModule {
    * @param swapTransactionId - The ID of the swap transaction.
    * @returns A promise resolving to the SwapTransaction details.
    */
-  async getOne(
+  async getSwapTransaction(
     userId: string,
     swapTransactionId: string,
   ): Promise<QuidaxResponse<SwapTransaction>> {
@@ -132,7 +132,7 @@ export class SwapModule {
    * @param userId - The unique ID of the user.
    * @returns A promise resolving to a paginated list of SwapTransactions.
    */
-  async getAll(userId: string): Promise<PaginatedResponse<SwapTransaction>> {
+  async listSwapTransactions(userId: string): Promise<PaginatedResponse<SwapTransaction>> {
     return (this.client as any).get(`/users/${userId}/swap_transactions`);
   }
 }

@@ -20,7 +20,7 @@ export class TradesModule {
    * @param userId - The unique ID of the user.
    * @returns A promise resolving to a paginated list of Trade objects.
    */
-  async getUserTrades(userId: string): Promise<PaginatedResponse<Trade>> {
+  async listUserTrades(userId: string): Promise<PaginatedResponse<Trade>> {
     return (this.client as any).get(`/users/${userId}/trades`);
   }
 
@@ -30,7 +30,7 @@ export class TradesModule {
    * @param marketPair - The market pair (e.g., 'btcngn').
    * @returns A promise resolving to an array of Trade objects.
    */
-  async getMarketTrades(marketPair: string): Promise<QuidaxResponse<Trade[]>> {
+  async listMarketTrades(marketPair: string): Promise<QuidaxResponse<Trade[]>> {
     return (this.client as any).get(`/trades/${marketPair}`);
   }
 }

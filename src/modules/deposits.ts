@@ -26,7 +26,7 @@ export class DepositsModule {
    * @param params - Optional filters (state, currency).
    * @returns A promise resolving to a paginated list of Deposit objects.
    */
-  async getAll(userId: string, params?: { state?: string; currency?: string }): Promise<PaginatedResponse<Deposit>> {
+  async listDeposits(userId: string, params?: { state?: string; currency?: string }): Promise<PaginatedResponse<Deposit>> {
     return (this.client as any).get(`/users/${userId}/deposits`, { params });
   }
 
@@ -37,7 +37,7 @@ export class DepositsModule {
    * @param depositId - The unique ID of the deposit.
    * @returns A promise resolving to a single Deposit object.
    */
-  async getOne(userId: string, depositId: string): Promise<QuidaxResponse<Deposit>> {
+  async getDeposit(userId: string, depositId: string): Promise<QuidaxResponse<Deposit>> {
     return (this.client as any).get(`/users/${userId}/deposits/${depositId}`);
   }
 
@@ -47,7 +47,7 @@ export class DepositsModule {
    * @param params - Optional filters (state, currency).
    * @returns A promise resolving to a paginated list of Deposit objects.
    */
-  async getSubUsersDeposits(params?: { state?: string; currency?: string }): Promise<PaginatedResponse<Deposit>> {
+  async listSubAccountDeposits(params?: { state?: string; currency?: string }): Promise<PaginatedResponse<Deposit>> {
     return (this.client as any).get('/users/deposits/all', { params });
   }
 }

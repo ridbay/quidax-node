@@ -32,7 +32,7 @@ export class MarketsModule {
    * 
    * @returns A promise resolving to an array of Market objects.
    */
-  async getAll(): Promise<QuidaxResponse<Market[]>> {
+  async listMarkets(): Promise<QuidaxResponse<Market[]>> {
     return (this.client as any).get('/markets');
   }
 
@@ -48,11 +48,11 @@ export class MarketsModule {
   /**
    * Retrieves the current ticker data for a specific market.
    * 
-   * @param currency - The market pair (e.g., 'btcngn').
+   * @param market - The market pair (e.g., 'btcngn').
    * @returns A promise resolving to the Ticker data.
    */
-  async getTicker(currency: string): Promise<QuidaxResponse<{ ticker: Ticker; at: number }>> {
-    return (this.client as any).get(`/markets/tickers/${currency}`);
+  async getTicker(market: string): Promise<QuidaxResponse<{ ticker: Ticker; at: number }>> {
+    return (this.client as any).get(`/markets/tickers/${market}`);
   }
 
   /**
@@ -65,42 +65,42 @@ export class MarketsModule {
    * @param params.timestamp - Starting timestamp.
    * @returns A promise resolving to an array of k-line data points.
    */
-  async getKLine(market: string, params?: { limit?: number; period?: number; timestamp?: number }): Promise<QuidaxResponse<any[]>> {
+  async getCandles(market: string, params?: { limit?: number; period?: number; timestamp?: number }): Promise<QuidaxResponse<any[]>> {
     return (this.client as any).get(`/markets/${market}/k`, { params });
   }
 
   /**
    * Retrieves candlestick data including pending trades for a market.
    * 
-   * @param currency - The market pair (e.g., 'btcngn').
+   * @param market - The market pair (e.g., 'btcngn').
    * @param tradeId - The ID of the pending trade reference.
    * @param params - Optional query parameters.
    * @returns A promise resolving to an array of k-line data points.
    */
-  async getKLineWithPending(currency: string, tradeId: number, params?: { limit?: number; period?: number; timestamp?: number }): Promise<QuidaxResponse<any[]>> {
-    return (this.client as any).get(`/markets/${currency}/k_with_pending_trades/${tradeId}`, { params });
+  async getCandlesWithPendingTrades(market: string, tradeId: number, params?: { limit?: number; period?: number; timestamp?: number }): Promise<QuidaxResponse<any[]>> {
+    return (this.client as any).get(`/markets/${market}/k_with_pending_trades/${tradeId}`, { params });
   }
 
   /**
    * Retrieves the order book (asks and bids) for a specific market.
    * 
-   * @param currency - The market pair (e.g., 'btcngn').
+   * @param market - The market pair (e.g., 'btcngn').
    * @param params - Optional query parameters to limit asks and bids.
    * @returns A promise resolving to the OrderBook object.
    */
-  async getOrderBook(currency: string, params?: { asks_limit?: number; bids_limit?: number }): Promise<QuidaxResponse<OrderBook>> {
-    return (this.client as any).get(`/markets/${currency}/order_book`, { params });
+  async getOrderBook(market: string, params?: { asks_limit?: number; bids_limit?: number }): Promise<QuidaxResponse<OrderBook>> {
+    return (this.client as any).get(`/markets/${market}/order_book`, { params });
   }
 
   /**
    * Retrieves market depth data.
    * 
-   * @param currency - The market pair (e.g., 'btcngn').
+   * @param market - The market pair (e.g., 'btcngn').
    * @param params - Optional limit parameter.
    * @returns A promise resolving to depth data.
    */
-  async getDepth(currency: string, params?: { limit?: number }): Promise<QuidaxResponse<OrderBook>> {
-    return (this.client as any).get(`/markets/${currency}/depth`, { params });
+  async getDepth(market: string, params?: { limit?: number }): Promise<QuidaxResponse<OrderBook>> {
+    return (this.client as any).get(`/markets/${market}/depth`, { params });
   }
 
   /**

@@ -127,7 +127,7 @@ declare class UsersModule {
    * @returns A promise resolving to the created User object.
    * @throws {QuidaxError} If validation fails or email already exists.
    */
-  create(data: {
+  createSubAccount(data: {
     email: string;
     first_name: string;
     last_name: string;
@@ -138,7 +138,7 @@ declare class UsersModule {
    *
    * @returns A promise resolving to the Parent User object.
    */
-  getParentAccount(): Promise<QuidaxResponse<User>>;
+  getMe(): Promise<QuidaxResponse<User>>;
   /**
    * Edits the details of an existing sub-account.
    *
@@ -146,7 +146,7 @@ declare class UsersModule {
    * @param data - The data to update.
    * @returns A promise resolving to the updated User object.
    */
-  edit(userId: string, data: {
+  updateSubAccount(userId: string, data: {
     first_name?: string;
     last_name?: string;
     phone_number?: string;
@@ -156,7 +156,7 @@ declare class UsersModule {
    *
    * @returns A promise resolving to a list of User objects.
    */
-  getAll(): Promise<QuidaxResponse<User[]>>;
+  listSubAccounts(): Promise<QuidaxResponse<User[]>>;
   /**
    * Fetches the detailed profile of a specific sub-account.
    *
@@ -164,7 +164,7 @@ declare class UsersModule {
    * @returns A promise resolving to the User object.
    * @throws {QuidaxError} If the user is not found.
    */
-  getOne(userId: string): Promise<QuidaxResponse<User>>;
+  getSubAccount(userId: string): Promise<QuidaxResponse<User>>;
 }
 //#endregion
 //#region src/modules/wallets.d.ts
@@ -177,7 +177,7 @@ declare class WalletsModule {
    * @param userId - The unique ID of the user. 'me' can be used for the authenticated user.
    * @returns A promise resolving to an array of Wallet objects.
    */
-  getAll(userId: string): Promise<QuidaxResponse<Wallet[]>>;
+  listWallets(userId: string): Promise<QuidaxResponse<Wallet[]>>;
   /**
    * Fetches a specific cryptocurrency wallet for a user.
    *
@@ -185,7 +185,7 @@ declare class WalletsModule {
    * @param currency - The cryptocurrency ticker (e.g., 'btc', 'usdt').
    * @returns A promise resolving to a single Wallet object.
    */
-  getOne(userId: string, currency: Currency): Promise<QuidaxResponse<Wallet>>;
+  getWallet(userId: string, currency: Currency): Promise<QuidaxResponse<Wallet>>;
   /**
    * Fetches the default Payment Address for a specific user's wallet.
    *
@@ -201,7 +201,7 @@ declare class WalletsModule {
    * @param currency - The cryptocurrency ticker.
    * @returns A promise resolving to an array of PaymentAddress objects.
    */
-  getAllPaymentAddresses(userId: string, currency: Currency): Promise<QuidaxResponse<PaymentAddress[]>>;
+  listPaymentAddresses(userId: string, currency: Currency): Promise<QuidaxResponse<PaymentAddress[]>>;
   /**
    * Fetches a specific Payment Address by its ID.
    *
@@ -218,7 +218,7 @@ declare class WalletsModule {
    * @param userId - The unique ID of the user.
    * @param currency - The cryptocurrency ticker (e.g., 'btc', 'usdt').
    * @param network - The blockchain network (e.g., 'bitcoin', 'bep20', 'trc20').
-   *   Use `getOne`/`getAll` to see the networks a currency supports.
+   *   Use `getWallet`/`listWallets` to see the networks a currency supports.
    * @returns A promise resolving to the newly generated PaymentAddress object.
    */
   createPaymentAddress(userId: string, currency: Currency, network: Network): Promise<QuidaxResponse<PaymentAddress>>;
@@ -247,7 +247,7 @@ declare class WithdrawalsModule {
    * @param userId - The unique ID of the user.
    * @returns A promise resolving to a paginated list of Withdrawal objects.
    */
-  getAll(userId: string): Promise<PaginatedResponse<Withdrawal>>;
+  listWithdrawals(userId: string): Promise<PaginatedResponse<Withdrawal>>;
   /**
    * Fetches the details of a specific withdrawal.
    *
@@ -255,7 +255,7 @@ declare class WithdrawalsModule {
    * @param withdrawalId - The ID of the withdrawal to retrieve.
    * @returns A promise resolving to a single Withdrawal object.
    */
-  getOne(userId: string, withdrawalId: string): Promise<QuidaxResponse<Withdrawal>>;
+  getWithdrawal(userId: string, withdrawalId: string): Promise<QuidaxResponse<Withdrawal>>;
   /**
    * Fetches a withdrawal by its unique reference string.
    *
@@ -263,7 +263,7 @@ declare class WithdrawalsModule {
    * @param reference - The withdrawal reference string.
    * @returns A promise resolving to a single Withdrawal object.
    */
-  getByReference(userId: string, reference: string): Promise<QuidaxResponse<Withdrawal>>;
+  getWithdrawalByReference(userId: string, reference: string): Promise<QuidaxResponse<Withdrawal>>;
   /**
    * Initiates a new cryptocurrency withdrawal.
    *
@@ -275,13 +275,13 @@ declare class WithdrawalsModule {
    * @param data.fund_uid2 - Destination tag/memo (e.g. for XRP, XLM).
    * @param data.transaction_note - Optional note for the transaction.
    * @param data.reference - Unique reference for the withdrawal (required in v3.0).
-   *   If this call fails, fetch the withdrawal with `getByReference` before retrying,
+   *   If this call fails, fetch the withdrawal with `getWithdrawalByReference` before retrying,
    *   as it may already have been processed.
    * @param data.narration - Optional narration for the transaction.
    * @param data.network - Blockchain network; required for on-chain withdrawals.
    * @returns A promise resolving to the created Withdrawal object.
    */
-  create(userId: string, data: {
+  createWithdrawal(userId: string, data: {
     currency: Currency;
     amount: string;
     fund_uid: string;
@@ -300,7 +300,7 @@ declare class WithdrawalsModule {
    * @param reference - The withdrawal reference string.
    * @returns A promise resolving to the created Withdrawal object.
    */
-  ngn_to_merchant(userId: string, amount: string, merchantId: string, reference: string): Promise<QuidaxResponse<Withdrawal>>;
+  createNgnMerchantWithdrawal(userId: string, amount: string, merchantId: string, reference: string): Promise<QuidaxResponse<Withdrawal>>;
   /**
    * Cancels a pending withdrawal.
    *
@@ -308,7 +308,7 @@ declare class WithdrawalsModule {
    * @param withdrawalId - The ID of the withdrawal to cancel.
    * @returns A promise resolving to the canceled Withdrawal object.
    */
-  cancel(userId: string, withdrawalId: string): Promise<QuidaxResponse<Withdrawal>>;
+  cancelWithdrawal(userId: string, withdrawalId: string): Promise<QuidaxResponse<Withdrawal>>;
 }
 //#endregion
 //#region src/modules/markets.d.ts
@@ -340,7 +340,7 @@ declare class MarketsModule {
    *
    * @returns A promise resolving to an array of Market objects.
    */
-  getAll(): Promise<QuidaxResponse<Market[]>>;
+  listMarkets(): Promise<QuidaxResponse<Market[]>>;
   /**
    * Retrieves tickers for all available markets.
    *
@@ -353,10 +353,10 @@ declare class MarketsModule {
   /**
    * Retrieves the current ticker data for a specific market.
    *
-   * @param currency - The market pair (e.g., 'btcngn').
+   * @param market - The market pair (e.g., 'btcngn').
    * @returns A promise resolving to the Ticker data.
    */
-  getTicker(currency: string): Promise<QuidaxResponse<{
+  getTicker(market: string): Promise<QuidaxResponse<{
     ticker: Ticker;
     at: number;
   }>>;
@@ -370,7 +370,7 @@ declare class MarketsModule {
    * @param params.timestamp - Starting timestamp.
    * @returns A promise resolving to an array of k-line data points.
    */
-  getKLine(market: string, params?: {
+  getCandles(market: string, params?: {
     limit?: number;
     period?: number;
     timestamp?: number;
@@ -378,12 +378,12 @@ declare class MarketsModule {
   /**
    * Retrieves candlestick data including pending trades for a market.
    *
-   * @param currency - The market pair (e.g., 'btcngn').
+   * @param market - The market pair (e.g., 'btcngn').
    * @param tradeId - The ID of the pending trade reference.
    * @param params - Optional query parameters.
    * @returns A promise resolving to an array of k-line data points.
    */
-  getKLineWithPending(currency: string, tradeId: number, params?: {
+  getCandlesWithPendingTrades(market: string, tradeId: number, params?: {
     limit?: number;
     period?: number;
     timestamp?: number;
@@ -391,22 +391,22 @@ declare class MarketsModule {
   /**
    * Retrieves the order book (asks and bids) for a specific market.
    *
-   * @param currency - The market pair (e.g., 'btcngn').
+   * @param market - The market pair (e.g., 'btcngn').
    * @param params - Optional query parameters to limit asks and bids.
    * @returns A promise resolving to the OrderBook object.
    */
-  getOrderBook(currency: string, params?: {
+  getOrderBook(market: string, params?: {
     asks_limit?: number;
     bids_limit?: number;
   }): Promise<QuidaxResponse<OrderBook>>;
   /**
    * Retrieves market depth data.
    *
-   * @param currency - The market pair (e.g., 'btcngn').
+   * @param market - The market pair (e.g., 'btcngn').
    * @param params - Optional limit parameter.
    * @returns A promise resolving to depth data.
    */
-  getDepth(currency: string, params?: {
+  getDepth(market: string, params?: {
     limit?: number;
   }): Promise<QuidaxResponse<OrderBook>>;
   /**
@@ -436,14 +436,14 @@ declare class TradesModule {
    * @param userId - The unique ID of the user.
    * @returns A promise resolving to a paginated list of Trade objects.
    */
-  getUserTrades(userId: string): Promise<PaginatedResponse<Trade>>;
+  listUserTrades(userId: string): Promise<PaginatedResponse<Trade>>;
   /**
    * Fetches recent trades for a given market pair.
    *
    * @param marketPair - The market pair (e.g., 'btcngn').
    * @returns A promise resolving to an array of Trade objects.
    */
-  getMarketTrades(marketPair: string): Promise<QuidaxResponse<Trade[]>>;
+  listMarketTrades(marketPair: string): Promise<QuidaxResponse<Trade[]>>;
 }
 //#endregion
 //#region src/modules/deposits.d.ts
@@ -471,7 +471,7 @@ declare class DepositsModule {
    * @param params - Optional filters (state, currency).
    * @returns A promise resolving to a paginated list of Deposit objects.
    */
-  getAll(userId: string, params?: {
+  listDeposits(userId: string, params?: {
     state?: string;
     currency?: string;
   }): Promise<PaginatedResponse<Deposit>>;
@@ -482,14 +482,14 @@ declare class DepositsModule {
    * @param depositId - The unique ID of the deposit.
    * @returns A promise resolving to a single Deposit object.
    */
-  getOne(userId: string, depositId: string): Promise<QuidaxResponse<Deposit>>;
+  getDeposit(userId: string, depositId: string): Promise<QuidaxResponse<Deposit>>;
   /**
    * Fetches deposits made by all sub-users across the platform.
    *
    * @param params - Optional filters (state, currency).
    * @returns A promise resolving to a paginated list of Deposit objects.
    */
-  getSubUsersDeposits(params?: {
+  listSubAccountDeposits(params?: {
     state?: string;
     currency?: string;
   }): Promise<PaginatedResponse<Deposit>>;
@@ -531,7 +531,7 @@ declare class SwapModule {
    * @param data - The swap quotation parameters.
    * @returns A promise resolving to the temporary swap quotation details.
    */
-  getQuotation(userId: string, data: {
+  previewQuotation(userId: string, data: {
     from_currency: Currency;
     to_currency: Currency;
     from_amount: string;
@@ -544,7 +544,7 @@ declare class SwapModule {
    * @param data - The swap creation payload.
    * @returns A promise resolving to a SwapTransaction object in an unconfirmed state.
    */
-  create(userId: string, data: {
+  createQuotation(userId: string, data: {
     from_currency: Currency;
     to_currency: Currency;
     from_amount?: string;
@@ -557,7 +557,7 @@ declare class SwapModule {
    * @param quotationId - The ID of the swap quotation to confirm.
    * @returns A promise resolving to the confirmed SwapTransaction.
    */
-  confirm(userId: string, quotationId: string): Promise<QuidaxResponse<SwapTransaction>>;
+  confirmQuotation(userId: string, quotationId: string): Promise<QuidaxResponse<SwapTransaction>>;
   /**
    * Refreshes an Instant Swap quotation to get updated market rates.
    * In Quidax 3.0 a quotation can only be refreshed if it has expired or the value changes.
@@ -567,7 +567,7 @@ declare class SwapModule {
    * @param data - Optional updated quotation values.
    * @returns A promise resolving to the refreshed SwapTransaction.
    */
-  refresh(userId: string, quotationId: string, data?: SwapRefreshParams): Promise<QuidaxResponse<SwapTransaction>>;
+  refreshQuotation(userId: string, quotationId: string, data?: SwapRefreshParams): Promise<QuidaxResponse<SwapTransaction>>;
   /**
    * Fetches the details of a specific Swap Transaction.
    *
@@ -575,14 +575,14 @@ declare class SwapModule {
    * @param swapTransactionId - The ID of the swap transaction.
    * @returns A promise resolving to the SwapTransaction details.
    */
-  getOne(userId: string, swapTransactionId: string): Promise<QuidaxResponse<SwapTransaction>>;
+  getSwapTransaction(userId: string, swapTransactionId: string): Promise<QuidaxResponse<SwapTransaction>>;
   /**
    * Retrieves a paginated list of all swap transactions for a user.
    *
    * @param userId - The unique ID of the user.
    * @returns A promise resolving to a paginated list of SwapTransactions.
    */
-  getAll(userId: string): Promise<PaginatedResponse<SwapTransaction>>;
+  listSwapTransactions(userId: string): Promise<PaginatedResponse<SwapTransaction>>;
 }
 //#endregion
 //#region src/modules/orders.d.ts
@@ -616,7 +616,7 @@ declare class OrdersModule {
    * @param data.volume - The amount of cryptocurrency to buy or sell.
    * @returns A promise resolving to the created Order object.
    */
-  create(userId: string, data: {
+  createOrder(userId: string, data: {
     market: string;
     side: 'buy' | 'sell';
     ord_type: 'limit' | 'market';
@@ -630,7 +630,7 @@ declare class OrdersModule {
    * @param params - Optional filters (market, state, order_by).
    * @returns A promise resolving to a paginated list of Order objects.
    */
-  getAll(userId: string, params?: {
+  listOrders(userId: string, params?: {
     market?: string;
     state?: string;
     order_by?: string;
@@ -642,7 +642,7 @@ declare class OrdersModule {
    * @param orderId - The unique ID of the order.
    * @returns A promise resolving to a single Order object.
    */
-  getOne(userId: string, orderId: string): Promise<QuidaxResponse<Order>>;
+  getOrder(userId: string, orderId: string): Promise<QuidaxResponse<Order>>;
   /**
    * Cancels a pending or open order.
    *
@@ -650,7 +650,7 @@ declare class OrdersModule {
    * @param orderId - The unique ID of the order to cancel.
    * @returns A promise resolving to the canceled Order object.
    */
-  cancel(userId: string, orderId: string): Promise<QuidaxResponse<Order>>;
+  cancelOrder(userId: string, orderId: string): Promise<QuidaxResponse<Order>>;
 }
 //#endregion
 //#region src/modules/fees.d.ts
@@ -781,7 +781,7 @@ declare class QuidaxError extends Error {
  * import Quidax from 'quidax-node';
  *
  * const quidax = new Quidax({ apiKey: 'your_api_key' });
- * const me = await quidax.users.getParentAccount();
+ * const me = await quidax.users.getMe();
  * ```
  */
 declare class Quidax {

@@ -32,7 +32,7 @@ export class OrdersModule {
    * @param data.volume - The amount of cryptocurrency to buy or sell.
    * @returns A promise resolving to the created Order object.
    */
-  async create(userId: string, data: { market: string; side: 'buy' | 'sell'; ord_type: 'limit' | 'market'; price?: string; volume: string }): Promise<QuidaxResponse<Order>> {
+  async createOrder(userId: string, data: { market: string; side: 'buy' | 'sell'; ord_type: 'limit' | 'market'; price?: string; volume: string }): Promise<QuidaxResponse<Order>> {
     return (this.client as any).post(`/users/${userId}/orders`, data);
   }
 
@@ -43,7 +43,7 @@ export class OrdersModule {
    * @param params - Optional filters (market, state, order_by).
    * @returns A promise resolving to a paginated list of Order objects.
    */
-  async getAll(userId: string, params?: { market?: string; state?: string; order_by?: string }): Promise<PaginatedResponse<Order>> {
+  async listOrders(userId: string, params?: { market?: string; state?: string; order_by?: string }): Promise<PaginatedResponse<Order>> {
     return (this.client as any).get(`/users/${userId}/orders`, { params });
   }
 
@@ -54,7 +54,7 @@ export class OrdersModule {
    * @param orderId - The unique ID of the order.
    * @returns A promise resolving to a single Order object.
    */
-  async getOne(userId: string, orderId: string): Promise<QuidaxResponse<Order>> {
+  async getOrder(userId: string, orderId: string): Promise<QuidaxResponse<Order>> {
     return (this.client as any).get(`/users/${userId}/orders/${orderId}`);
   }
 
@@ -65,7 +65,7 @@ export class OrdersModule {
    * @param orderId - The unique ID of the order to cancel.
    * @returns A promise resolving to the canceled Order object.
    */
-  async cancel(userId: string, orderId: string): Promise<QuidaxResponse<Order>> {
+  async cancelOrder(userId: string, orderId: string): Promise<QuidaxResponse<Order>> {
     return (this.client as any).post(`/users/${userId}/orders/${orderId}/cancel`);
   }
 }

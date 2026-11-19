@@ -79,7 +79,7 @@ var UsersModule = class {
 	* @returns A promise resolving to the created User object.
 	* @throws {QuidaxError} If validation fails or email already exists.
 	*/
-	async create(data) {
+	async createSubAccount(data) {
 		return this.client.post("/users", data);
 	}
 	/**
@@ -87,7 +87,7 @@ var UsersModule = class {
 	* 
 	* @returns A promise resolving to the Parent User object.
 	*/
-	async getParentAccount() {
+	async getMe() {
 		return this.client.get("/users/me");
 	}
 	/**
@@ -97,7 +97,7 @@ var UsersModule = class {
 	* @param data - The data to update.
 	* @returns A promise resolving to the updated User object.
 	*/
-	async edit(userId, data) {
+	async updateSubAccount(userId, data) {
 		return this.client.put(`/users/${userId}`, data);
 	}
 	/**
@@ -105,7 +105,7 @@ var UsersModule = class {
 	* 
 	* @returns A promise resolving to a list of User objects.
 	*/
-	async getAll() {
+	async listSubAccounts() {
 		return this.client.get("/users");
 	}
 	/**
@@ -115,7 +115,7 @@ var UsersModule = class {
 	* @returns A promise resolving to the User object.
 	* @throws {QuidaxError} If the user is not found.
 	*/
-	async getOne(userId) {
+	async getSubAccount(userId) {
 		return this.client.get(`/users/${userId}`);
 	}
 };
@@ -131,7 +131,7 @@ var WalletsModule = class {
 	* @param userId - The unique ID of the user. 'me' can be used for the authenticated user.
 	* @returns A promise resolving to an array of Wallet objects.
 	*/
-	async getAll(userId) {
+	async listWallets(userId) {
 		return this.client.get(`/users/${userId}/wallets`);
 	}
 	/**
@@ -141,7 +141,7 @@ var WalletsModule = class {
 	* @param currency - The cryptocurrency ticker (e.g., 'btc', 'usdt').
 	* @returns A promise resolving to a single Wallet object.
 	*/
-	async getOne(userId, currency) {
+	async getWallet(userId, currency) {
 		return this.client.get(`/users/${userId}/wallets/${currency}`);
 	}
 	/**
@@ -161,7 +161,7 @@ var WalletsModule = class {
 	* @param currency - The cryptocurrency ticker.
 	* @returns A promise resolving to an array of PaymentAddress objects.
 	*/
-	async getAllPaymentAddresses(userId, currency) {
+	async listPaymentAddresses(userId, currency) {
 		return this.client.get(`/users/${userId}/wallets/${currency}/addresses`);
 	}
 	/**
@@ -182,7 +182,7 @@ var WalletsModule = class {
 	* @param userId - The unique ID of the user.
 	* @param currency - The cryptocurrency ticker (e.g., 'btc', 'usdt').
 	* @param network - The blockchain network (e.g., 'bitcoin', 'bep20', 'trc20').
-	*   Use `getOne`/`getAll` to see the networks a currency supports.
+	*   Use `getWallet`/`listWallets` to see the networks a currency supports.
 	* @returns A promise resolving to the newly generated PaymentAddress object.
 	*/
 	async createPaymentAddress(userId, currency, network) {
@@ -201,7 +201,7 @@ var WithdrawalsModule = class {
 	* @param userId - The unique ID of the user.
 	* @returns A promise resolving to a paginated list of Withdrawal objects.
 	*/
-	async getAll(userId) {
+	async listWithdrawals(userId) {
 		return this.client.get(`/users/${userId}/withdraws`);
 	}
 	/**
@@ -211,7 +211,7 @@ var WithdrawalsModule = class {
 	* @param withdrawalId - The ID of the withdrawal to retrieve.
 	* @returns A promise resolving to a single Withdrawal object.
 	*/
-	async getOne(userId, withdrawalId) {
+	async getWithdrawal(userId, withdrawalId) {
 		return this.client.get(`/users/${userId}/withdraws/${withdrawalId}`);
 	}
 	/**
@@ -221,7 +221,7 @@ var WithdrawalsModule = class {
 	* @param reference - The withdrawal reference string.
 	* @returns A promise resolving to a single Withdrawal object.
 	*/
-	async getByReference(userId, reference) {
+	async getWithdrawalByReference(userId, reference) {
 		return this.client.get(`/users/${userId}/withdraws/reference/${reference}`);
 	}
 	/**
@@ -235,13 +235,13 @@ var WithdrawalsModule = class {
 	* @param data.fund_uid2 - Destination tag/memo (e.g. for XRP, XLM).
 	* @param data.transaction_note - Optional note for the transaction.
 	* @param data.reference - Unique reference for the withdrawal (required in v3.0).
-	*   If this call fails, fetch the withdrawal with `getByReference` before retrying,
+	*   If this call fails, fetch the withdrawal with `getWithdrawalByReference` before retrying,
 	*   as it may already have been processed.
 	* @param data.narration - Optional narration for the transaction.
 	* @param data.network - Blockchain network; required for on-chain withdrawals.
 	* @returns A promise resolving to the created Withdrawal object.
 	*/
-	async create(userId, data) {
+	async createWithdrawal(userId, data) {
 		return this.client.post(`/users/${userId}/withdraws`, data);
 	}
 	/**
@@ -253,7 +253,7 @@ var WithdrawalsModule = class {
 	* @param reference - The withdrawal reference string.
 	* @returns A promise resolving to the created Withdrawal object.
 	*/
-	async ngn_to_merchant(userId, amount, merchantId, reference) {
+	async createNgnMerchantWithdrawal(userId, amount, merchantId, reference) {
 		const payload = {
 			currency: "ngn",
 			amount,
@@ -271,7 +271,7 @@ var WithdrawalsModule = class {
 	* @param withdrawalId - The ID of the withdrawal to cancel.
 	* @returns A promise resolving to the canceled Withdrawal object.
 	*/
-	async cancel(userId, withdrawalId) {
+	async cancelWithdrawal(userId, withdrawalId) {
 		return this.client.post(`/users/${userId}/withdraws/${withdrawalId}/cancel`);
 	}
 };
@@ -286,7 +286,7 @@ var MarketsModule = class {
 	* 
 	* @returns A promise resolving to an array of Market objects.
 	*/
-	async getAll() {
+	async listMarkets() {
 		return this.client.get("/markets");
 	}
 	/**
@@ -300,11 +300,11 @@ var MarketsModule = class {
 	/**
 	* Retrieves the current ticker data for a specific market.
 	* 
-	* @param currency - The market pair (e.g., 'btcngn').
+	* @param market - The market pair (e.g., 'btcngn').
 	* @returns A promise resolving to the Ticker data.
 	*/
-	async getTicker(currency) {
-		return this.client.get(`/markets/tickers/${currency}`);
+	async getTicker(market) {
+		return this.client.get(`/markets/tickers/${market}`);
 	}
 	/**
 	* Retrieves candlestick (k-line) data for a specific market.
@@ -316,39 +316,39 @@ var MarketsModule = class {
 	* @param params.timestamp - Starting timestamp.
 	* @returns A promise resolving to an array of k-line data points.
 	*/
-	async getKLine(market, params) {
+	async getCandles(market, params) {
 		return this.client.get(`/markets/${market}/k`, { params });
 	}
 	/**
 	* Retrieves candlestick data including pending trades for a market.
 	* 
-	* @param currency - The market pair (e.g., 'btcngn').
+	* @param market - The market pair (e.g., 'btcngn').
 	* @param tradeId - The ID of the pending trade reference.
 	* @param params - Optional query parameters.
 	* @returns A promise resolving to an array of k-line data points.
 	*/
-	async getKLineWithPending(currency, tradeId, params) {
-		return this.client.get(`/markets/${currency}/k_with_pending_trades/${tradeId}`, { params });
+	async getCandlesWithPendingTrades(market, tradeId, params) {
+		return this.client.get(`/markets/${market}/k_with_pending_trades/${tradeId}`, { params });
 	}
 	/**
 	* Retrieves the order book (asks and bids) for a specific market.
 	* 
-	* @param currency - The market pair (e.g., 'btcngn').
+	* @param market - The market pair (e.g., 'btcngn').
 	* @param params - Optional query parameters to limit asks and bids.
 	* @returns A promise resolving to the OrderBook object.
 	*/
-	async getOrderBook(currency, params) {
-		return this.client.get(`/markets/${currency}/order_book`, { params });
+	async getOrderBook(market, params) {
+		return this.client.get(`/markets/${market}/order_book`, { params });
 	}
 	/**
 	* Retrieves market depth data.
 	* 
-	* @param currency - The market pair (e.g., 'btcngn').
+	* @param market - The market pair (e.g., 'btcngn').
 	* @param params - Optional limit parameter.
 	* @returns A promise resolving to depth data.
 	*/
-	async getDepth(currency, params) {
-		return this.client.get(`/markets/${currency}/depth`, { params });
+	async getDepth(market, params) {
+		return this.client.get(`/markets/${market}/depth`, { params });
 	}
 	/**
 	* Retrieves a high-level summary of all markets.
@@ -371,7 +371,7 @@ var TradesModule = class {
 	* @param userId - The unique ID of the user.
 	* @returns A promise resolving to a paginated list of Trade objects.
 	*/
-	async getUserTrades(userId) {
+	async listUserTrades(userId) {
 		return this.client.get(`/users/${userId}/trades`);
 	}
 	/**
@@ -380,7 +380,7 @@ var TradesModule = class {
 	* @param marketPair - The market pair (e.g., 'btcngn').
 	* @returns A promise resolving to an array of Trade objects.
 	*/
-	async getMarketTrades(marketPair) {
+	async listMarketTrades(marketPair) {
 		return this.client.get(`/trades/${marketPair}`);
 	}
 };
@@ -397,7 +397,7 @@ var DepositsModule = class {
 	* @param params - Optional filters (state, currency).
 	* @returns A promise resolving to a paginated list of Deposit objects.
 	*/
-	async getAll(userId, params) {
+	async listDeposits(userId, params) {
 		return this.client.get(`/users/${userId}/deposits`, { params });
 	}
 	/**
@@ -407,7 +407,7 @@ var DepositsModule = class {
 	* @param depositId - The unique ID of the deposit.
 	* @returns A promise resolving to a single Deposit object.
 	*/
-	async getOne(userId, depositId) {
+	async getDeposit(userId, depositId) {
 		return this.client.get(`/users/${userId}/deposits/${depositId}`);
 	}
 	/**
@@ -416,7 +416,7 @@ var DepositsModule = class {
 	* @param params - Optional filters (state, currency).
 	* @returns A promise resolving to a paginated list of Deposit objects.
 	*/
-	async getSubUsersDeposits(params) {
+	async listSubAccountDeposits(params) {
 		return this.client.get("/users/deposits/all", { params });
 	}
 };
@@ -433,7 +433,7 @@ var SwapModule = class {
 	* @param data - The swap quotation parameters.
 	* @returns A promise resolving to the temporary swap quotation details.
 	*/
-	async getQuotation(userId, data) {
+	async previewQuotation(userId, data) {
 		return this.client.post(`/users/${userId}/temporary_swap_quotation`, data);
 	}
 	/**
@@ -443,7 +443,7 @@ var SwapModule = class {
 	* @param data - The swap creation payload.
 	* @returns A promise resolving to a SwapTransaction object in an unconfirmed state.
 	*/
-	async create(userId, data) {
+	async createQuotation(userId, data) {
 		return this.client.post(`/users/${userId}/swap_quotation`, data);
 	}
 	/**
@@ -453,7 +453,7 @@ var SwapModule = class {
 	* @param quotationId - The ID of the swap quotation to confirm.
 	* @returns A promise resolving to the confirmed SwapTransaction.
 	*/
-	async confirm(userId, quotationId) {
+	async confirmQuotation(userId, quotationId) {
 		return this.client.post(`/users/${userId}/swap_quotation/${quotationId}/confirm`);
 	}
 	/**
@@ -465,7 +465,7 @@ var SwapModule = class {
 	* @param data - Optional updated quotation values.
 	* @returns A promise resolving to the refreshed SwapTransaction.
 	*/
-	async refresh(userId, quotationId, data) {
+	async refreshQuotation(userId, quotationId, data) {
 		return this.client.post(`/users/${userId}/swap_quotation/${quotationId}/refresh`, data);
 	}
 	/**
@@ -475,7 +475,7 @@ var SwapModule = class {
 	* @param swapTransactionId - The ID of the swap transaction.
 	* @returns A promise resolving to the SwapTransaction details.
 	*/
-	async getOne(userId, swapTransactionId) {
+	async getSwapTransaction(userId, swapTransactionId) {
 		return this.client.get(`/users/${userId}/swap_transactions/${swapTransactionId}`);
 	}
 	/**
@@ -484,7 +484,7 @@ var SwapModule = class {
 	* @param userId - The unique ID of the user.
 	* @returns A promise resolving to a paginated list of SwapTransactions.
 	*/
-	async getAll(userId) {
+	async listSwapTransactions(userId) {
 		return this.client.get(`/users/${userId}/swap_transactions`);
 	}
 };
@@ -506,7 +506,7 @@ var OrdersModule = class {
 	* @param data.volume - The amount of cryptocurrency to buy or sell.
 	* @returns A promise resolving to the created Order object.
 	*/
-	async create(userId, data) {
+	async createOrder(userId, data) {
 		return this.client.post(`/users/${userId}/orders`, data);
 	}
 	/**
@@ -516,7 +516,7 @@ var OrdersModule = class {
 	* @param params - Optional filters (market, state, order_by).
 	* @returns A promise resolving to a paginated list of Order objects.
 	*/
-	async getAll(userId, params) {
+	async listOrders(userId, params) {
 		return this.client.get(`/users/${userId}/orders`, { params });
 	}
 	/**
@@ -526,7 +526,7 @@ var OrdersModule = class {
 	* @param orderId - The unique ID of the order.
 	* @returns A promise resolving to a single Order object.
 	*/
-	async getOne(userId, orderId) {
+	async getOrder(userId, orderId) {
 		return this.client.get(`/users/${userId}/orders/${orderId}`);
 	}
 	/**
@@ -536,7 +536,7 @@ var OrdersModule = class {
 	* @param orderId - The unique ID of the order to cancel.
 	* @returns A promise resolving to the canceled Order object.
 	*/
-	async cancel(userId, orderId) {
+	async cancelOrder(userId, orderId) {
 		return this.client.post(`/users/${userId}/orders/${orderId}/cancel`);
 	}
 };
@@ -696,7 +696,7 @@ var RampModule = class {
 * import Quidax from 'quidax-node';
 * 
 * const quidax = new Quidax({ apiKey: 'your_api_key' });
-* const me = await quidax.users.getParentAccount();
+* const me = await quidax.users.getMe();
 * ```
 */
 var Quidax = class {

@@ -42,10 +42,10 @@ The SDK is organized into intuitive, feature-based modules.
 Manage parent and sub-accounts.
 ```typescript
 // Fetch parent account details
-const parentAccount = await quidax.users.getParentAccount();
+const parentAccount = await quidax.users.getMe();
 
 // Create a sub-account
-const subAccount = await quidax.users.create({
+const subAccount = await quidax.users.createSubAccount({
     email: 'user@example.com',
     first_name: 'John',
     last_name: 'Doe'
@@ -56,7 +56,7 @@ const subAccount = await quidax.users.create({
 Manage cryptocurrency wallets and generate payment addresses.
 ```typescript
 // Fetch all wallets for a specific user (each wallet lists its supported `networks`)
-const wallets = await quidax.wallets.getAll('user_id');
+const wallets = await quidax.wallets.listWallets('user_id');
 
 // Generate a payment address. The network is required in v3.0 and the address is returned immediately.
 const btcAddress = await quidax.wallets.createPaymentAddress('user_id', 'btc', 'bitcoin');
@@ -77,12 +77,12 @@ const ticker = await quidax.markets.getTicker('btcngn');
 Track deposits and process withdrawals.
 ```typescript
 // Fetch all deposits for a user
-const deposits = await quidax.deposits.getAll('user_id');
+const deposits = await quidax.deposits.listDeposits('user_id');
 
 // Process a crypto withdrawal. `reference` is required in v3.0.
 const reference = 'wd_' + Date.now();
 try {
-  const withdrawal = await quidax.withdrawals.create('user_id', {
+  const withdrawal = await quidax.withdrawals.createWithdrawal('user_id', {
       currency: 'usdt',
       amount: '50',
       fund_uid: 'destination_address_or_sub_user_id',
@@ -92,37 +92,37 @@ try {
 } catch (error) {
   // The withdrawal may already have been processed. Check by reference
   // before retrying, to avoid a double debit.
-  const existing = await quidax.withdrawals.getByReference('user_id', reference);
+  const existing = await quidax.withdrawals.getWithdrawalByReference('user_id', reference);
 }
 ```
 
-> **Webhooks:** Quidax recommends re-querying the transaction after you receive a webhook and treating the API response as the source of truth. Use `deposits.getOne`, `swap.getOne` and `withdrawals.getByReference`.
+> **Webhooks:** Quidax recommends re-querying the transaction after you receive a webhook and treating the API response as the source of truth. Use `deposits.getDeposit`, `swap.getSwapTransaction` and `withdrawals.getWithdrawalByReference`.
 
 ### 5. Instant Swaps
 Process crypto-to-crypto instant swaps.
 ```typescript
 // Preview a swap (temporary quotation)
-const preview = await quidax.swap.getQuotation('user_id', {
+const preview = await quidax.swap.previewQuotation('user_id', {
     from_currency: 'btc',
     to_currency: 'usdt',
     from_amount: '0.01',
 });
 
 // Create the swap quotation (provide either from_amount or to_amount, not both)
-const quotation = await quidax.swap.create('user_id', {
+const quotation = await quidax.swap.createQuotation('user_id', {
     from_currency: 'btc',
     to_currency: 'usdt',
     from_amount: '0.01',
 });
 
 // Confirm the quotation
-const swap = await quidax.swap.confirm('user_id', quotation.data.id);
+const swap = await quidax.swap.confirmQuotation('user_id', quotation.data.id);
 
 // Status is 'initiated' | 'completed' | 'failed' ('failed' is new in v3.0)
 if (swap.data.status === 'failed') { /* handle failure */ }
 
 // Refresh a quotation. In v3.0 this only works if it has expired or the value changed.
-await quidax.swap.refresh('user_id', quotation.data.id, { from_amount: '0.02' });
+await quidax.swap.refreshQuotation('user_id', quotation.data.id, { from_amount: '0.02' });
 ```
 
 ### 6. Ramp & Custodial
@@ -138,6 +138,47 @@ const quote = await quidax.ramp.getBuyQuote({
   amount: '50000'
 });
 ```
+
+## Migrating from 3.x to 4.0
+
+**v4.0.0 is a breaking release.** Method names now say which resource they act on, and they all use the same verbs (`list`, `get`, `create`, `update`, `cancel`, `confirm`). The old names have been **removed**, so rename your calls using the table below.
+
+| Module | Old name | New name |
+| --- | --- | --- |
+| `users` | `getParentAccount` | `getMe` |
+| `users` | `getAll` | `listSubAccounts` |
+| `users` | `getOne` | `getSubAccount` |
+| `users` | `create` | `createSubAccount` |
+| `users` | `edit` | `updateSubAccount` |
+| `wallets` | `getAll` | `listWallets` |
+| `wallets` | `getOne` | `getWallet` |
+| `wallets` | `getAllPaymentAddresses` | `listPaymentAddresses` |
+| `deposits` | `getAll` | `listDeposits` |
+| `deposits` | `getOne` | `getDeposit` |
+| `deposits` | `getSubUsersDeposits` | `listSubAccountDeposits` |
+| `withdrawals` | `getAll` | `listWithdrawals` |
+| `withdrawals` | `getOne` | `getWithdrawal` |
+| `withdrawals` | `getByReference` | `getWithdrawalByReference` |
+| `withdrawals` | `create` | `createWithdrawal` |
+| `withdrawals` | `ngn_to_merchant` | `createNgnMerchantWithdrawal` |
+| `withdrawals` | `cancel` | `cancelWithdrawal` |
+| `orders` | `getAll` | `listOrders` |
+| `orders` | `getOne` | `getOrder` |
+| `orders` | `create` | `createOrder` |
+| `orders` | `cancel` | `cancelOrder` |
+| `swap` | `getQuotation` | `previewQuotation` |
+| `swap` | `create` | `createQuotation` |
+| `swap` | `confirm` | `confirmQuotation` |
+| `swap` | `refresh` | `refreshQuotation` |
+| `swap` | `getOne` | `getSwapTransaction` |
+| `swap` | `getAll` | `listSwapTransactions` |
+| `markets` | `getAll` | `listMarkets` |
+| `markets` | `getKLine` | `getCandles` |
+| `markets` | `getKLineWithPending` | `getCandlesWithPendingTrades` |
+| `trades` | `getUserTrades` | `listUserTrades` |
+| `trades` | `getMarketTrades` | `listMarketTrades` |
+
+Arguments and return types have not changed. `ramp` and `fees` are unchanged.
 
 ## Error Handling
 

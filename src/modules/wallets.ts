@@ -10,7 +10,7 @@ export class WalletsModule {
    * @param userId - The unique ID of the user. 'me' can be used for the authenticated user.
    * @returns A promise resolving to an array of Wallet objects.
    */
-  async getAll(userId: string): Promise<QuidaxResponse<Wallet[]>> {
+  async listWallets(userId: string): Promise<QuidaxResponse<Wallet[]>> {
     return (this.client as any).get(`/users/${userId}/wallets`);
   }
 
@@ -21,7 +21,7 @@ export class WalletsModule {
    * @param currency - The cryptocurrency ticker (e.g., 'btc', 'usdt').
    * @returns A promise resolving to a single Wallet object.
    */
-  async getOne(
+  async getWallet(
     userId: string,
     currency: Currency,
   ): Promise<QuidaxResponse<Wallet>> {
@@ -51,7 +51,7 @@ export class WalletsModule {
    * @param currency - The cryptocurrency ticker.
    * @returns A promise resolving to an array of PaymentAddress objects.
    */
-  async getAllPaymentAddresses(
+  async listPaymentAddresses(
     userId: string,
     currency: Currency,
   ): Promise<QuidaxResponse<PaymentAddress[]>> {
@@ -85,7 +85,7 @@ export class WalletsModule {
    * @param userId - The unique ID of the user.
    * @param currency - The cryptocurrency ticker (e.g., 'btc', 'usdt').
    * @param network - The blockchain network (e.g., 'bitcoin', 'bep20', 'trc20').
-   *   Use `getOne`/`getAll` to see the networks a currency supports.
+   *   Use `getWallet`/`listWallets` to see the networks a currency supports.
    * @returns A promise resolving to the newly generated PaymentAddress object.
    */
   async createPaymentAddress(

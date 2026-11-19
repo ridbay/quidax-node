@@ -15,7 +15,7 @@ export class UsersModule {
    * @returns A promise resolving to the created User object.
    * @throws {QuidaxError} If validation fails or email already exists.
    */
-  async create(data: { email: string; first_name: string; last_name: string; phone_number?: string }): Promise<QuidaxResponse<User>> {
+  async createSubAccount(data: { email: string; first_name: string; last_name: string; phone_number?: string }): Promise<QuidaxResponse<User>> {
     // Note: Quidax v3 docs indicate the endpoint is often /users
     return (this.client as any).post('/users', data);
   }
@@ -25,7 +25,7 @@ export class UsersModule {
    * 
    * @returns A promise resolving to the Parent User object.
    */
-  async getParentAccount(): Promise<QuidaxResponse<User>> {
+  async getMe(): Promise<QuidaxResponse<User>> {
     return (this.client as any).get('/users/me');
   }
 
@@ -36,7 +36,7 @@ export class UsersModule {
    * @param data - The data to update.
    * @returns A promise resolving to the updated User object.
    */
-  async edit(userId: string, data: { first_name?: string; last_name?: string; phone_number?: string }): Promise<QuidaxResponse<User>> {
+  async updateSubAccount(userId: string, data: { first_name?: string; last_name?: string; phone_number?: string }): Promise<QuidaxResponse<User>> {
     return (this.client as any).put(`/users/${userId}`, data);
   }
 
@@ -45,7 +45,7 @@ export class UsersModule {
    * 
    * @returns A promise resolving to a list of User objects.
    */
-  async getAll(): Promise<QuidaxResponse<User[]>> {
+  async listSubAccounts(): Promise<QuidaxResponse<User[]>> {
     return (this.client as any).get('/users');
   }
 
@@ -56,7 +56,7 @@ export class UsersModule {
    * @returns A promise resolving to the User object.
    * @throws {QuidaxError} If the user is not found.
    */
-  async getOne(userId: string): Promise<QuidaxResponse<User>> {
+  async getSubAccount(userId: string): Promise<QuidaxResponse<User>> {
     return (this.client as any).get(`/users/${userId}`);
   }
 }
