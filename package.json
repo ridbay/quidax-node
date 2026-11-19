@@ -1,6 +1,6 @@
 {
-  "name": "@ridbay/quidax-node",
-  "version": "3.3.0",
+  "name": "quidax-node",
+  "version": "3.3.3",
   "description": "",
   "main": "./dist/index.cjs",
   "files": [
